@@ -111,6 +111,10 @@ CREATE TABLE public."Grupos_Tocan_Conciertos" (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- Limpiamos los datos antes de hacer nada por si volvemos a lanzarlo evitar problemas
+DELETE FROM public."Musicos" WHERE codigo_musico = 1;
+DELETE FROM public."Grupo" WHERE "Codigo_grupo" = 1;
+
 -- Abrimos la transacción
 BEGIN;
 
@@ -125,8 +129,115 @@ VALUES (1, '123456789A', 'Cuestion2', 'Calle2', 28180, 'Madrid', 'Madrid', 61234
 -- Cerramos la transacción
 COMMIT;
 
----------- Cuestión 3
-
-
-
 ---------- Cuestión 4
+
+-- Para ver el identificador de la transacción se usa el comando xmin
+SELECT xmin, * FROM public."Grupo" WHERE "Codigo_grupo" = 1;
+SELECT xmin, * FROM public."Musicos" WHERE codigo_musico = 1;
+
+---------- Cuestión 7
+
+-- Eliminamos los usuarios si existen para evitar errores al relanzar el script, DROP OWNED BY elimina todos los permisos del usuario antes de borrarlo
+DROP OWNED BY musico1;
+DROP USER IF EXISTS musico1;
+
+DROP OWNED BY musico2;
+DROP USER IF EXISTS musico2;
+
+DROP OWNED BY musico3;
+DROP USER IF EXISTS musico3;
+
+-- Creamos los tres usuarios
+CREATE USER musico1 WITH PASSWORD 'musico1';
+CREATE USER musico2 WITH PASSWORD 'musico2';
+CREATE USER musico3 WITH PASSWORD 'musico3';
+
+-- Damos permiso de conexión a la base de datos
+GRANT CONNECT ON DATABASE musicos TO musico1, musico2, musico3;
+
+-- Damos permiso para acceder al esquema public
+GRANT USAGE ON SCHEMA public TO musico1, musico2, musico3;
+
+-- Damos permiso de lectura y escritura, pero que no modifique la estructura
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO musico1, musico2, musico3;
+
+---------- Cuestión 8
+
+-- Abrimos la conexión de musico1 (nuevo data source con usuario y contraseña musico1 y database musicos)
+
+-- En la consola de esta nueva conexión ejecutamos lo siguiente sin cerrar la transacción
+-- Limpiamos los datos antes de hacer nada por si volvemos a lanzarlo evitar problemas
+DELETE FROM public."Musicos" WHERE codigo_musico = 1300;
+DELETE FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+
+BEGIN;
+
+INSERT INTO public."Grupo" ("Codigo_grupo", "Nombre", "Genero_musical", "Pais", "Sitio_web")
+VALUES (1300, 'Piedras Negras', 'rock', 'España', 'www.piedrasnegras.com');
+
+INSERT INTO public."Musicos" (codigo_musico, "DNI", "Nombre", "Direccion", "Codigo_Postal", "Ciudad", "Provincia", telefono, "Instrumentos", "Codigo_grupo_Grupo")
+VALUES (1300, '123456789X', 'Musico_1300', 'Calle_1300', 39001, 'Santander', 'Cantabria', 612345789, 'Guitarra', 1300);
+
+-- Comprobamos que los datos se han insertado correctamente
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+SELECT * FROM public."Musicos" WHERE "DNI" = '123456789X';
+
+-- En la consola de postgres comprobamos la actividad del sistema
+SELECT pid, usename, state, query, wait_event_type, wait_event
+FROM pg_stat_activity
+WHERE datname = 'musicos';
+
+---------- Cuestión 9
+
+-- CONEXIÓN musico2: Abrir nuevo data source con usuario musico2, contraseña musico2 y database musicos
+-- Ejecutar en la consola de musico2:
+BEGIN;
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+
+-- Ejecutar en la consola de postgres para ver la actividad del sistema:
+SELECT pid, usename, state, query, wait_event_type, wait_event
+FROM pg_stat_activity
+WHERE datname = 'musicos';
+
+---------- Cuestión 10
+
+-- Comprobamos si los datos están físicamente en la tabla desde la conexión de postgres
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1300;
+
+---------- Cuestión 11
+
+-- En la consola de la conexión de musico1
+COMMIT;
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1300;
+
+-- En la consola de la conexión de musico2
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1300;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1300;
+
+---------- Cuestión 12
+
+
+
+---------- Cuestión 13
+
+
+
+---------- Cuestión 14
+
+
+
+---------- Cuestión 15
+
+
+
+---------- Cuestión 16
+
+
+
+---------- Cuestión 17
+
+
+
+---------- Cuestión 18
