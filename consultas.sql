@@ -218,7 +218,26 @@ SELECT * FROM public."Musicos" WHERE codigo_musico = 1300;
 
 ---------- Cuestión 12
 
+-- Limpiamos por si ya existen los datos
+DELETE FROM public."Musicos" WHERE codigo_musico = 1400;
+DELETE FROM public."Grupo" WHERE "Codigo_grupo" = 1400;
 
+-- Abrimos en la consola del músico que queramos (en nuestro caso musico2)
+BEGIN;
+
+INSERT INTO public."Grupo" ("Codigo_grupo", "Nombre", "Genero_musical", "Pais", "Sitio_web")
+VALUES (1400, 'Cuestion12', 'pop', 'España', 'www.cuestion12.com');
+
+INSERT INTO public."Musicos" (codigo_musico, "DNI", "Nombre", "Direccion", "Codigo_Postal", "Ciudad", "Provincia", telefono, "Instrumentos", "Codigo_grupo_Grupo")
+VALUES (1400, '123450000X', 'Musico1400', 'Calle_1400', 28180, 'Murcia', 'Murcia', 612345789, 'Oboe', 1400);
+
+UPDATE public."Musicos" SET telefono = 918856931 WHERE codigo_musico = 1400;
+
+UPDATE public."Grupo" SET "Codigo_grupo" = 1300 WHERE "Codigo_grupo" = 1400;
+
+UPDATE public."Grupo" SET "Nombre" = 'Héroes del Silencio' WHERE "Codigo_grupo" = 1400;
+
+COMMIT;
 
 ---------- Cuestión 13
 
