@@ -241,11 +241,67 @@ COMMIT;
 
 ---------- Cuestión 13
 
+-- Abrimos la conexión de musico1
+-- En la consola de esta nueva conexión ejecutamos lo siguiente sin cerrar la transacción
+-- Limpiamos los datos antes de hacer nada por si volvemos a lanzarlo evitar problemas
+DELETE FROM public."Musicos" WHERE codigo_musico = 1500;
+DELETE FROM public."Grupo" WHERE "Codigo_grupo" = 1500;
 
+BEGIN;
+
+INSERT INTO public."Grupo" ("Codigo_grupo", "Nombre", "Genero_musical", "Pais", "Sitio_web")
+VALUES (1500, 'Piedras Blancas', 'pop', 'España', 'www.piedrasblancas.com');
+
+INSERT INTO public."Musicos" (codigo_musico, "DNI", "Nombre", "Direccion", "Codigo_Postal", "Ciudad", "Provincia", telefono, "Instrumentos", "Codigo_grupo_Grupo")
+VALUES (1500, '000000001X', 'Musico_1500', 'Calle_1500', 29001, 'Badajoz', 'Extremadura', 612345789, 'Guitarra', 1500);
+
+-- Comprobamos que los datos se han insertado correctamente
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1500;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1500;
+
+-- En la consola de postgres comprobamos la actividad del sistema
+SELECT pid, usename, state, query, wait_event_type, wait_event
+FROM pg_stat_activity
+WHERE datname = 'musicos';
+
+-- CONEXIÓN musico2: Abrir nuevo data source con usuario musico2, contraseña musico2 y database musicos
+-- Ejecutar en la consola de musico2:
+BEGIN;
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1500;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1500;
+
+-- Ejecutar en la consola de postgres para ver la actividad del sistema:
+SELECT pid, usename, state, query, wait_event_type, wait_event
+FROM pg_stat_activity
+WHERE datname = 'musicos';
+
+-- En musico1 ejecutamos
+ROLLBACK;
+
+-- Volvemos a ejecutar en musico1 y musico2
+SELECT * FROM public."Grupo" WHERE "Codigo_grupo" = 1500;
+SELECT * FROM public."Musicos" WHERE codigo_musico = 1500;
 
 ---------- Cuestión 14
 
+CREATE TABLE public."ValorA" (
+    A real not NULL,
+    CONSTRAINT "ValorA_pk" PRIMARY KEY (A)
+);
 
+CREATE TABLE public."ValorB" (
+    B real not NULL,
+    CONSTRAINT "ValorB_pk" PRIMARY KEY (B)
+);
+
+CREATE TABLE public."ValorC" (
+    C real not NULL,
+    CONSTRAINT "ValorC_pk" PRIMARY KEY (C)
+);
+
+INSERT INTO public."ValorA" (A) VALUES (40);
+INSERT INTO public."ValorB" (B) VALUES (50);
+INSERT INTO public."ValorC" (C) VALUES (60);
 
 ---------- Cuestión 15
 
