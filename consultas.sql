@@ -305,7 +305,86 @@ INSERT INTO public."ValorC" (C) VALUES (60);
 
 ---------- Cuestión 15
 
+-- Los usuarios no tienen permisos sobre las tablas nuevas asi que ejecutamos esto en la consola de postgres
+GRANT SELECT, INSERT, UPDATE, DELETE ON public."ValorA" TO musico1, musico2, musico3;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public."ValorB" TO musico1, musico2, musico3;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public."ValorC" TO musico1, musico2, musico3;
 
+-- Primero empezamos las transacciones haciendo begin en cada una de las consolas
+BEGIN;
+
+-- Secuencia 1. musico1: READ(C)
+SELECT C FROM public."ValorC";
+
+-- Secuencia 2 y 3. musico1: C = C/100, WRITE(C)
+UPDATE public."ValorC" SET C = C / 100;
+
+-- Secuencia 4. musico2: READ(B)
+SELECT B FROM public."ValorB";
+
+-- Secuencia 5. musico2: B = B + 200
+
+-- Secuencia 6. musico3: READ(A)
+SELECT A FROM public."ValorA";
+
+-- Secuencia 7. musico3: A = A * 20
+
+-- Secuencia 8. musico2: WRITE(B)
+UPDATE public."ValorB" SET B = B + 200;
+
+-- Secuencia 9. musico3: READ(B)
+SELECT B FROM public."ValorB";
+
+-- Secuencia 10. musico3: A = A - B
+
+-- Secuencia 11. musico3: WRITE(A)
+UPDATE public."ValorA" SET A = A - (SELECT B FROM public."ValorB");
+
+-- Secuencia 12. musico1: READ(A)
+SELECT A FROM public."ValorA";
+
+-- Secuencia 13. musico1: A = A + 100
+
+-- Secuencia 14. musico1: WRITE(A)
+UPDATE public."ValorA" SET A = A + 100;
+
+-- Secuencia 15. musico2: READ(C)
+SELECT C FROM public."ValorC";
+
+-- Secuencia 16. musico2: C = B - C
+
+-- Secuencia 17. musico3: READ(C)
+SELECT C FROM public."ValorC";
+
+-- Secuencia 18. musico3: B = A * C
+
+-- Secuencia 19. musico3: WRITE(B)
+UPDATE public."ValorB" SET B = (SELECT A FROM public."ValorA") * (SELECT C FROM public."ValorC");
+
+-- Secuencia 20. musico3: COMMIT
+COMMIT;
+
+-- Secuencia 21. musico2: WRITE(C)
+UPDATE public."ValorC" SET C = (SELECT B FROM public."ValorB") - C;
+
+-- Secuencia 22. musico1: C = C - A
+
+-- Secuencia 23. musico1: WRITE(C)
+UPDATE public."ValorC" SET C = C - (SELECT A FROM public."ValorA");
+
+-- Secuencia 24. musico2: READ(C)
+SELECT C FROM public."ValorC";
+
+-- Secuencia 25. musico1: COMMIT
+COMMIT;
+
+-- Secuencia 26. musico2: C = B * 30
+
+-- Secuencia 27. musico2: WRITE(C)
+UPDATE public."ValorC" SET C = (SELECT B FROM public."ValorB") * 30;
+
+-- Secuencia 28. musico2: COMMIT
+COMMIT;
 
 ---------- Cuestión 16
 
