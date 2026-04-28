@@ -388,10 +388,16 @@ COMMIT;
 
 ---------- Cuestión 16
 
-
+SELECT * FROM public."ValorA";
+SELECT * FROM public."ValorB";
+SELECT * FROM public."ValorC";
 
 ---------- Cuestión 17
 
+-- Comprueba qué bases de datos hay
+SELECT datname FROM pg_database;
 
-
----------- Cuestión 18
+-- Comprueba el estado de la base de datos musicos
+SELECT * FROM public."ValorA";
+SELECT * FROM public."ValorB";
+SELECT * FROM public."ValorC";
